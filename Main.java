@@ -1,9 +1,11 @@
 import java.io.File;
 import java.io.IOException;
+import java.util.Random;
 import java.util.Scanner;
 
 import javax.imageio.ImageIO;
 
+import java.awt.Color;
 import java.awt.Graphics2D;
 import java.awt.image.BufferedImage;
 
@@ -32,19 +34,24 @@ class Main {
         }
         screenSizeSel.close();
         BufferedImage wallpaperFinal = new BufferedImage(wallpaperWidth, wallpaperHeight, BufferedImage.TYPE_INT_ARGB);
+        wallpaperFinal.createGraphics().setBackground(Color.BLACK);
 
         File[] images = new File("images").listFiles();
-        Graphics2D[] squares = new Graphics2D[images.length];
+        BufferedImage[] squares = new BufferedImage[images.length];
+        int trueLength = 0;
         for (int i = 0; i < images.length; i++) {
             try {
                 BufferedImage workingSquare = ImageIO.read(images[i]);
                 int workingWidth = workingSquare.getWidth();
                 int workingHeight = workingSquare.getHeight();
                 if (workingWidth > workingHeight) { // landscape
-                    squares[i] = workingSquare.getSubimage((workingWidth / 2) - (workingHeight / 2), 0, workingHeight, workingHeight).createGraphics();
+                    squares[i] = workingSquare.getSubimage((workingWidth / 2) - (workingHeight / 2), 0, workingHeight, workingHeight);
+                    trueLength++;
                 } else if (workingHeight > workingWidth) { // portrait
-                    squares[i] = workingSquare.getSubimage(0, (workingHeight / 2) - (workingWidth / 2), workingWidth, workingWidth).createGraphics();
+                    squares[i] = workingSquare.getSubimage(0, (workingHeight / 2) - (workingWidth / 2), workingWidth, workingWidth);
+                    trueLength++;
                 } else {
+                    trueLength++;
                     continue; // just for my sanity - the picture would be square to meet this condition
                 }
             } catch (OutOfMemoryError e) { // this error is stinky... find a solution to this sometime over the rainbow
@@ -58,13 +65,12 @@ class Main {
         // will multiply to the number of pictures and see which proportion is closest
         // Scale the pictures then accordingly to fill all spaces, leave nothing out
         float resRatio = (float) wallpaperHeight / wallpaperWidth;
-        System.out.println(resRatio);
         float minDiff = resRatio;
         int[] minFactors = new int[2];
 
-        for (int i = 5; i < images.length; i++) {
+        for (int i = 1; i < images.length; i++) {
             if (images.length % i == 0) {
-                float workingRatio = i / (images.length / i);
+                float workingRatio = (float) i / (images.length / i);
                 if (Math.abs(resRatio - workingRatio) < minDiff) {
                     minDiff = Math.abs(resRatio - workingRatio);
                     minFactors[0] = i;
@@ -72,5 +78,42 @@ class Main {
                 }
             }
         }
+
+        if (minDiff > 0.1) { // the maximum compatible ratio diff is too large to be reasonable for the wallpaper
+            for (float i = 0; true; i += 0.00001) {
+                float length = i;
+                float width = (float) trueLength / i;
+
+                // System.out.println(Math.abs((width / length) - resRatio));
+                if(Math.abs((width / length) - resRatio) < 0.00001) {
+                    minFactors[0] = (int) length;
+                    minFactors[1] = (int) width;
+                    break;
+                }
+            }
+        }
+        System.out.println(minFactors[0] + " " + minFactors[1]);
+
+        // spin, grow, draw
+        for (int i = 0; i < squares.length; i++) {
+            int squareWidth = wallpaperWidth / minFactors[0];
+            if (squareWidth * minFactors[0] < wallpaperWidth)
+                minFactors[0]++;
+            int squareHeight = wallpaperHeight / minFactors[1];
+            if (squareHeight * minFactors[1] < wallpaperHeight)
+                minFactors[1]++;
+            Random rand = new Random();
+            double scale = rand.nextDouble(0.5) + 1;
+            System.out.println(i);
+            try {
+                squares[i].createGraphics().rotate(rand.nextDouble(Math.PI/3) - Math.PI/6);
+                squares[i].createGraphics().scale(scale, scale);
+                wallpaperFinal.createGraphics().drawImage(squares[i], null, (i % 7) * squareHeight, (i / 7) * squareHeight);
+            } catch (NullPointerException e) {
+                break;
+            }
+        }
+        wallpaperFinal.createGraphics().rotate(Math.PI/3);
+        ImageIO.write(wallpaperFinal, "png", new File("wallpaper-final.png"));
     }
 }
