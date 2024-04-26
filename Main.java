@@ -1,5 +1,6 @@
 import java.io.File;
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.Random;
 import java.util.Scanner;
 
@@ -115,5 +116,12 @@ class Main {
         }
         wallpaperFinal.createGraphics().rotate(Math.PI/3);
         ImageIO.write(wallpaperFinal, "png", new File("wallpaper-final.png"));
+    }
+
+    public static BufferedImage scale (BufferedImage image, int factor) {
+        int[] dimensionsOld = {image.getWidth(), image.getHeight()};
+        int[] dimensionsNew = {image.getWidth() * factor, image.getHeight() * factor};
+        
+        return new BufferedImage(); // shut up the compiler, please
     }
 }
