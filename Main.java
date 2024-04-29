@@ -116,17 +116,14 @@ class Main {
         Image[] squaresFinal = new Image[trueLength];
         int squareWidth = wallpaperWidth / minFactors[0];
         if (squareWidth * minFactors[0] < wallpaperWidth)
-            minFactors[0]++;
-        int squareHeight = wallpaperHeight / minFactors[1];
-        if (squareHeight * minFactors[1] < wallpaperHeight)
-            minFactors[1]++;
+            squareWidth++;
 
         // copy the array out - hopefully ease up on memory usage
         for (int i = 0; i < squaresFinal.length; i++) {
             Random rand = new Random();
             double scale = rand.nextDouble(0.5) + 1;
             System.out.print("Transform #" + (i + 1) + ": " + scale + ", ");
-            squaresFinal[i] = squares[i].getScaledInstance((int) (squareHeight * scale), (int) (squareHeight * scale),
+            squaresFinal[i] = squares[i].getScaledInstance((int) (squareWidth * scale), (int) (squareWidth * scale),
                     Image.SCALE_SMOOTH);
         }
 
@@ -136,8 +133,8 @@ class Main {
             System.out.println(rotate);
             try {
                 AffineTransform move = new AffineTransform();
-                move.translate((range[i] % 7) * squareHeight, (range[i] / 7) * squareHeight);
-                move.rotate(rotate, squareHeight / 2, squareHeight / 2);
+                move.translate((range[i] % minFactors[0]) * squareWidth, (range[i] / minFactors[0]) * squareWidth);
+                move.rotate(rotate, squareWidth / 2, squareWidth / 2);
                 wallpaperFinal.createGraphics().drawImage(squaresFinal[i], move, null);
             } catch (OutOfMemoryError e) {
                 System.out.println("WAAAY too much memory!");
