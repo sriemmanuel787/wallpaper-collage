@@ -49,12 +49,17 @@ class Main {
                     squares[i] = workingSquare.getSubimage((workingWidth / 2) - (workingHeight / 2), 0, workingHeight,
                             workingHeight);
                     trueLength++;
+                    System.out.println("landscape");
                 } else if (workingHeight > workingWidth) { // portrait
                     squares[i] = workingSquare.getSubimage(0, (workingHeight / 2) - (workingWidth / 2), workingWidth,
                             workingWidth);
                     trueLength++;
+                    System.out.println("portrait");
                 } else {
+                    squares[i] = workingSquare.getSubimage(0, (workingHeight / 2) - (workingWidth / 2), workingWidth,
+                            workingWidth);
                     trueLength++;
+                    System.out.println("square");
                     continue; // just for my sanity - the picture would be square to meet this condition
                 }
             } catch (OutOfMemoryError e) { // this error is stinky... find a solution to this sometime over the rainbow
@@ -117,7 +122,7 @@ class Main {
         // copy the array out - hopefully ease up on memory usage
         for (int i = 0; i < squaresFinal.length; i++) {
             Random rand = new Random();
-            double scale = rand.nextDouble(0.5) + 1;
+            double scale = rand.nextDouble() % 0.5 + 1;
             System.out.print("Transform #" + (i + 1) + ": " + scale + ", ");
             squaresFinal[i] = squares[i].getScaledInstance((int) (squareWidth * scale), (int) (squareWidth * scale),
                     Image.SCALE_SMOOTH);
@@ -125,7 +130,7 @@ class Main {
 
         for (int i = 0; i < squaresFinal.length; i++) {
             Random rand = new Random();
-            double rotate = rand.nextDouble(Math.PI / 3) - Math.PI / 6;
+            double rotate = (rand.nextDouble() % Math.PI / 3) - Math.PI / 6;
             System.out.println(rotate);
             try {
                 AffineTransform move = new AffineTransform();
