@@ -122,7 +122,7 @@ class Main {
         // copy the array out - hopefully ease up on memory usage
         for (int i = 0; i < squaresFinal.length; i++) {
             Random rand = new Random();
-            double scale = rand.nextDouble() % 0.5 + 1;
+            double scale = (rand.nextDouble() % 0.5) + 1;
             System.out.print("Transform #" + (i + 1) + ": " + scale + ", ");
             squaresFinal[i] = squares[i].getScaledInstance((int) (squareWidth * scale), (int) (squareWidth * scale),
                     Image.SCALE_SMOOTH);
@@ -130,7 +130,8 @@ class Main {
 
         for (int i = 0; i < squaresFinal.length; i++) {
             Random rand = new Random();
-            double rotate = (rand.nextDouble() % Math.PI / 3) - Math.PI / 6;
+            Random direction = new Random();
+            double rotate = direction.nextBoolean() ? rand.nextDouble() % Math.PI / 3 : -(rand.nextDouble() % Math.PI / 3);
             System.out.println(rotate);
             try {
                 AffineTransform move = new AffineTransform();
